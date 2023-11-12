@@ -129,10 +129,10 @@ if __name__ == "__main__":
 
         total_end_time = datetime.datetime.now()
         print("End Time: ", total_end_time)
-        delta = total_end_time - total_start_time
+        total_delta = total_end_time - total_start_time
 
         with open('output/result.json', 'w') as output_file:
             json.dump({
                 "data": results,
-                "total_time": delta.seconds
+                "total_time": total_delta.seconds
             }, output_file)
