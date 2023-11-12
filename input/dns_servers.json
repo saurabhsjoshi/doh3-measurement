@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Google",
+    "address": "dns.google"
+  },
+  {
+    "name": "Cloudflare",
+    "address": "1.1.1.1"
+  },
+  {
+    "name": "NextDNS",
+    "address": "dns.nextdns.io"
+  },
+  {
+    "name": "AdGuard",
+    "address": "94.140.15.15"
+  },
+  {
+    "name": "ControlD",
+    "address": "p0.freedns.controld.com"
+  },
+  {
+    "name": "Quad9",
+    "address": "9.9.9.9",
+    "execute": false
+  }
+]
