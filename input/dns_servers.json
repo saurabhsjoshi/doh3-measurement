@@ -14,7 +14,8 @@
     "name": "NextDNS",
     "address": "dns.nextdns.io",
     "requires_resolution": true,
-    "disable_do53": true
+    "disable_do53": true,
+    "execute": false
   },
   {
     "id": 4,
