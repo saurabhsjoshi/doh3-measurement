@@ -20,8 +20,8 @@ HTTP_CLIENT_TIMEOUT = 1.5
 
 async def resolve_dns_server(dns_server):
     # Ask the DNS provider for the best IP address to use for their service
-    query = "https://" + dns_server + "/dns-query?dns=" + get_dns_query(dns_server)
-    async with httpx.AsyncClient(http2=True, timeout=HTTP_CLIENT_TIMEOUT) as client:
+    query = "https://1.1.1.1/dns-query?dns=" + get_dns_query(dns_server)
+    async with httpx.AsyncClient(http2=True, timeout=HTTP_CLIENT_TIMEOUT + 1.0) as client:
         response = await client.get(query)
         record = DNSRecord.parse(response.content)
         ip_addr = ""
@@ -133,6 +133,7 @@ if __name__ == "__main__":
     # pcap.tarball(path="/home/saurabh/Desktop/test3.tar.gz")
 
     results = []
+    cached_dns = {}
     dns_servers = json.load(open('input/dns_servers.json'))
     with open("input/websites.csv", "r") as f:
         websites = csv.reader(f)
@@ -151,15 +152,19 @@ if __name__ == "__main__":
 
                 # Check if DNS server requires resolution
                 if server.get('requires_resolution', False):
-                    try:
-                        addr = asyncio.run(resolve_dns_server(server['address']))
-                        server['address'] = addr
-                    except Exception as ex:
-                        # DNS Resolution Failed
-                        result["drf"] = dict({
-                            "er": str(ex)
-                        })
-                        continue
+                    if server['id'] not in cached_dns:
+                        try:
+                            addr = asyncio.run(resolve_dns_server(server['address']))
+                            cached_dns[server['id']] = addr
+                        except Exception as ex:
+                            print(ex)
+                            # DNS Resolution Failed
+                            result["drf"] = dict({
+                                "er": str(ex)
+                            })
+                            website_result[server['id']] = result
+                            continue
+                    server['address'] = cached_dns[server['id']]
 
                 if not server.get('disable_do53', False):
                     try:
@@ -191,7 +196,7 @@ if __name__ == "__main__":
                 website_result[server['id']] = result
 
             results.append(website_result)
-            print("Completed website ", website[0])
+            print("Completed website ", website[0], flush=True)
 
         total_end_time = datetime.datetime.now()
         print("End Time: ", total_end_time)
