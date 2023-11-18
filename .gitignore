@@ -187,3 +187,4 @@ fabric.properties
 # .idea
 
 output/**
+token.txt
