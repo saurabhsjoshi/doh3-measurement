@@ -15,13 +15,13 @@ from dnslib import DNSRecord, QTYPE
 
 from http3_client import H3Transport
 
-HTTP_CLIENT_TIMEOUT = 2.0
+HTTP_CLIENT_TIMEOUT = 1.5
 
 
 async def resolve_dns_server(dns_server):
     # Ask the DNS provider for the best IP address to use for their service
     query = "https://" + dns_server + "/dns-query?dns=" + get_dns_query(dns_server)
-    async with httpx.AsyncClient(http2=True, timeout=HTTP_CLIENT_TIMEOUT + 5) as client:
+    async with httpx.AsyncClient(http2=True, timeout=HTTP_CLIENT_TIMEOUT) as client:
         response = await client.get(query)
         record = DNSRecord.parse(response.content)
         ip_addr = ""
