@@ -26,6 +26,11 @@ echo 'Completed script'
 
 
 def create_droplet(do_region):
+    """
+    Start Digital Ocean droplets in given region
+    :param do_region: Digital Ocean Region (Ex: sfo3)
+    :return: created droplet
+    """
     try:
         manager = digitalocean.Manager()
         keys = manager.get_all_sshkeys()
@@ -55,6 +60,9 @@ def create_droplet(do_region):
 
 
 async def run_tasks():
+    """
+    Start droplets in given regions in parallel
+    """
     result = await asyncio.gather(*(asyncio.to_thread(create_droplet, region) for region in regions))
     print(result)
 

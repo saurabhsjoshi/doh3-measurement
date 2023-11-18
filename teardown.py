@@ -10,10 +10,10 @@ from datetime import datetime
 def download_results(do_ip, output_path):
     ssh = SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.load_system_host_keys()
     ssh.connect(do_ip, username='root')
     with SCPClient(ssh.get_transport()) as scp:
-        scp.get(f'/root/doh3-measurements/doh3-measurement-main/output/result.json', output_path)
+        scp.get('/var/log/cloud-init-output.log', output_path + '.log')
+        scp.get('/root/doh3-measurements/doh3-measurement-main/output/result.json', output_path + '.json')
 
 
 if __name__ == "__main__":
@@ -27,11 +27,11 @@ if __name__ == "__main__":
     for droplet in droplets:
         droplet.load()
         print("Downloading results from", droplet.region['slug'])
-        result_path = 'output/' + droplet.region['slug'] + '_' + now + '.json'
+        result_path = 'output/' + droplet.region['slug'] + '_' + now
         try:
             download_results(droplet.ip_address, result_path)
         except Exception as ex:
-            with open(result_path, 'w') as output_file:
+            with open(result_path + '.json', 'w') as output_file:
                 json.dump({
                     "download_error": str(ex)
                 }, output_file)

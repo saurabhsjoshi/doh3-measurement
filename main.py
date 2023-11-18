@@ -138,11 +138,14 @@ if __name__ == "__main__":
     with open("input/websites.csv", "r") as f:
         websites = csv.reader(f)
         for website in websites:
+            print("Starting website", website[0], flush=True)
+
             # Construct result for website
             website_result = dict({
                 "w": website[1]
             })
             for server in dns_servers:
+                print("Executing for server ", server['id'], flush=True)
                 # Check if DNS server has been marked to not execute
                 if not server.get("execute", True):
                     continue
@@ -154,6 +157,7 @@ if __name__ == "__main__":
                 if server.get('requires_resolution', False):
                     if server['id'] not in cached_dns:
                         try:
+                            print("Resolving DNS Server", server['id'], flush=True)
                             addr = asyncio.run(resolve_dns_server(server['address']))
                             cached_dns[server['id']] = addr
                         except Exception as ex:
