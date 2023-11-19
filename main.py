@@ -133,14 +133,14 @@ async def cancel_wrapper(func):
             return task.result()
         if not task.done() and count > 300:
             task.cancel()
-            print("Task timeout", flush=True)
+            print(datetime.datetime.now(), "Task timeout", flush=True)
             raise Exception("Cancelled task as it exceeded timeout")
         count = count + 1
 
 
 if __name__ == "__main__":
     total_start_time = datetime.datetime.now()
-    print("Start Time: ", total_start_time)
+    print(datetime.datetime.now(), "Start Time: ", total_start_time)
 
     # Use the following capture mechanism to capture a pcap file to analyze network traffic
     # with capture_packets() as pcap:
@@ -152,14 +152,14 @@ if __name__ == "__main__":
     with open("input/websites.csv", "r") as f:
         websites = csv.reader(f)
         for website in websites:
-            print("Starting website", website[0], flush=True)
+            print(datetime.datetime.now(), "Starting website", website[0], flush=True)
 
             # Construct result for website
             website_result = dict({
                 "w": website[1]
             })
             for server in dns_servers:
-                print("Executing for server ", server['id'], flush=True)
+                print(datetime.datetime.now(), "Executing for server ", server['id'], flush=True)
                 # Check if DNS server has been marked to not execute
                 if not server.get("execute", True):
                     continue
@@ -171,11 +171,11 @@ if __name__ == "__main__":
                 if server.get('requires_resolution', False):
                     if server['id'] not in cached_dns:
                         try:
-                            print("Resolving DNS Server", server['id'], flush=True)
+                            print(datetime.datetime.now(), "Resolving DNS Server", server['id'], flush=True)
                             addr = asyncio.run(resolve_dns_server(server['address']))
                             cached_dns[server['id']] = addr
                         except Exception as ex:
-                            print(ex)
+                            print(datetime.datetime.now(), ex)
                             # DNS Resolution Failed
                             result["drf"] = dict({
                                 "er": str(ex)
@@ -188,7 +188,7 @@ if __name__ == "__main__":
                     try:
                         result['do53_result'] = do53(server['address'], get_raw_dns_query(website[1]))
                     except Exception as ex:
-                        print(ex)
+                        print(datetime.datetime.now(), ex)
                         result["do53_result"] = dict({
                             'ms': -1.0,
                             'er': str(ex)
@@ -215,10 +215,10 @@ if __name__ == "__main__":
                 website_result[server['id']] = result
 
             results.append(website_result)
-            print("Completed website ", website[0], flush=True)
+            print(datetime.datetime.now(), "Completed website ", website[0], flush=True)
 
         total_end_time = datetime.datetime.now()
-        print("End Time: ", total_end_time)
+        print(datetime.datetime.now(), "End Time: ", total_end_time)
         total_delta = total_end_time - total_start_time
 
         with open('output/result.json', 'w') as output_file:

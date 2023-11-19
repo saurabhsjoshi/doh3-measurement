@@ -16,7 +16,7 @@ cd ~/doh3-measurements
 wget -O main.zip https://github.com/saurabhsjoshi/doh3-measurement/archive/refs/heads/main.zip
 unzip main.zip
 cd doh3-measurement-main
-python3 -m venv ./venv
+python3.11 -m venv ./venv
 source ./venv/bin/activate
 pip install -r requirements.txt
 echo 'Starting main script'
