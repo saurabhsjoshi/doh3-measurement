@@ -14,14 +14,13 @@
     "name": "NextDNS",
     "address": "dns.nextdns.io",
     "requires_resolution": true,
-    "disable_do53": true,
-    "execute": false
+    "disable_do53": true
   },
   {
     "id": 4,
     "name": "AdGuard",
-    "address": "unfiltered.adguard-dns.com",
-    "requires_resolution": true
+    "address": "94.140.14.140",
+    "disable_do53": true
   },
   {
     "id": 5,

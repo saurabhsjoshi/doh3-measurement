@@ -3,7 +3,6 @@ import base64
 import csv
 import datetime
 import json
-import socket
 from typing import cast
 from urllib.parse import urlparse
 
@@ -43,12 +42,8 @@ def do53(dns_server, query):
     :param query: Raw DNS query
     :return: dictionary containing the result
     """
-    address = (dns_server, 53)
-    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    client.settimeout(HTTP_CLIENT_TIMEOUT)
     start = datetime.datetime.now()
-    client.sendto(query, address)
-    response, _ = client.recvfrom(1024)
+    query.send(dns_server, port=53, timeout=HTTP_CLIENT_TIMEOUT)
     end = datetime.datetime.now()
     delta = end - start
     elapsed_ms = round(delta.microseconds * .001, 6)
@@ -111,7 +106,7 @@ def get_raw_dns_query(url):
     :return: raw dns question query
     """
     query = DNSRecord.question(url)
-    return query.pack()
+    return query
 
 
 def get_dns_query(url):
@@ -120,8 +115,27 @@ def get_dns_query(url):
     :param url: URL of the website that is to be queried (Ex: google.com)
     :return: base 64 encoded string that can be used to query a DNS server
     """
-    data = base64.urlsafe_b64encode(get_raw_dns_query(url))
+    data = base64.urlsafe_b64encode(get_raw_dns_query(url).pack())
     return data.decode("ascii").strip("=")
+
+
+async def cancel_wrapper(func):
+    """
+    Wrapper function for ensuring the given async function is executed in appropriate timeout
+    :param func: the function to be executed
+    :return: result from the function if it succeeds, failure otherwise
+    """
+    task = asyncio.create_task(func)
+    count = 0
+    while True:
+        await asyncio.sleep(0.01)
+        if task.done():
+            return task.result()
+        if not task.done() and count > 300:
+            task.cancel()
+            print("Task timeout", flush=True)
+            raise Exception("Cancelled task as it exceeded timeout")
+        count = count + 1
 
 
 if __name__ == "__main__":
@@ -174,6 +188,7 @@ if __name__ == "__main__":
                     try:
                         result['do53_result'] = do53(server['address'], get_raw_dns_query(website[1]))
                     except Exception as ex:
+                        print(ex)
                         result["do53_result"] = dict({
                             'ms': -1.0,
                             'er': str(ex)
@@ -183,7 +198,7 @@ if __name__ == "__main__":
                 query_url = "https://" + server['address'] + "/dns-query?dns=" + get_dns_query(website[1])
 
                 try:
-                    result["doh_result"] = asyncio.run(doh2(query=query_url))
+                    result["doh_result"] = asyncio.run(cancel_wrapper(doh2(query=query_url)))
                 except Exception as ex:
                     result["doh_result"] = dict({
                         'ms': -1.0,
@@ -191,7 +206,7 @@ if __name__ == "__main__":
                     })
 
                 try:
-                    result["doh3_result"] = asyncio.run(doh3(query=query_url))
+                    result["doh3_result"] = asyncio.run(cancel_wrapper(doh3(query=query_url)))
                 except Exception as ex:
                     result["doh3_result"] = dict({
                         'ms': -1.0,
