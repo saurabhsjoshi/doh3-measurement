@@ -16,6 +16,8 @@ The script requires Digital Ocean token to be populated in a environment variabl
 - `input` : Directory that contains input for the main script including list of DNS servers and list of websites to be
   tested
 - `output`: Directory that will contain the output after the script has been run
+- `measurements` : This script provides the code required to generate the measurement results
+- `results`: This directory is used by the `measurements` scripts to generate the required results
 - `deploy`: Deployer that deploys the main script to remote Digital Ocean droplets
 - `teardown`: Script to download results and then stop and delete DO all droplets
-  - <span style="color:red">WARNING: This script deletes **ALL** droplets, please review script before using</span> 
+    - <span style="color:red">WARNING: This script deletes **ALL** droplets, please review script before using</span> 

@@ -1,0 +1,9 @@
+httpx~=0.25.1
+aioquic~=0.9.22
+dnslib~=0.9.23
+paramiko~=3.3.1
+scp~=0.14.5
+prettytable~=3.9.0
+scipy~=1.11.4
+scapy~=2.5.0
+matplotlib~=3.8.2
